@@ -48,6 +48,7 @@ public class JDIEventMonitor extends Thread
   private final String[] excludes = { "java.*", "javax.*", "sun.*", "com.sun.*"};
 
   private final VirtualMachine vm;   // the JVM
+  private final String packageFilter;	// the package
   private boolean connected = true;  // connected to VM?
   private boolean vmDied;            // has VM death occurred?
 
@@ -66,10 +67,11 @@ public class JDIEventMonitor extends Thread
   private boolean vmDisconnect=false;
 
 
-  public JDIEventMonitor(VirtualMachine jvm)
+  public JDIEventMonitor(VirtualMachine jvm, String newPackageFilter)
   {
     super("JDIEventMonitor");
     vm = jvm;
+    packageFilter = newPackageFilter;
     showCode = new ShowCode();
 
     setEventRequests();
@@ -159,17 +161,17 @@ public class JDIEventMonitor extends Thread
     }
     else if (event instanceof ClassUnloadEvent) {
     	classUnload=true;
-        System.out.println("methodEntry = "+methodEntry);
-        System.out.println("methodExit = "+methodExit);
-        System.out.println("classPrepare = "+classPrepare);
-        System.out.println("classUnload = "+classUnload);
-        System.out.println("threadStart = "+threadStart);
-        System.out.println("threadDeath = "+threadDeath);
-        System.out.println("stepEvent = "+stepEvent);
-        System.out.println("modificationWatchpoint = "+modificationWatchpoint);
-        System.out.println("vmStart = "+vmStart);
-        System.out.println("vmDeath = "+vmDeath);
-        System.out.println("vmDisconnect = "+vmDisconnect);
+//        System.out.println("methodEntry = "+methodEntry);
+//        System.out.println("methodExit = "+methodExit);
+//        System.out.println("classPrepare = "+classPrepare);
+//        System.out.println("classUnload = "+classUnload);
+//        System.out.println("threadStart = "+threadStart);
+//        System.out.println("threadDeath = "+threadDeath);
+//        System.out.println("stepEvent = "+stepEvent);
+//        System.out.println("modificationWatchpoint = "+modificationWatchpoint);
+//        System.out.println("vmStart = "+vmStart);
+//        System.out.println("vmDeath = "+vmDeath);
+//        System.out.println("vmDisconnect = "+vmDisconnect);
     	classUnloadEvent((ClassUnloadEvent) event);
     }
 
@@ -248,11 +250,11 @@ public class JDIEventMonitor extends Thread
     Method meth = event.method();
     String className = meth.declaringType().name();
 
-    if(className.indexOf("com.carto.apptemoin")>=0) {
+    if(className.indexOf(packageFilter)>=0) {
         System.out.println();
         System.out.println();
         System.out.println();
-	    if (meth.isConstructor() && className.indexOf("com.carto.apptemoin.")>=0 )
+	    if (meth.isConstructor() && className.indexOf(packageFilter+".")>=0 )
 	      System.out.println("entered " + className + " constructor");
 	    else
 	      System.out.println("entered " + className +  "." + meth.name() +"()");
@@ -267,7 +269,7 @@ public class JDIEventMonitor extends Thread
     Method meth = event.method();
     String className = meth.declaringType().name();
 
-    if(className.indexOf("com.carto.apptemoin")>=0)
+    if(className.indexOf(packageFilter)>=0)
 	    if (meth.isConstructor())
 	      System.out.println("exiting " + className + " constructor");
 	    else
@@ -285,7 +287,7 @@ public class JDIEventMonitor extends Thread
   {
     ReferenceType ref = event.referenceType();
     
-    if(ref.name().indexOf("com.carto.apptemoin")>=0) {
+    if(ref.name().indexOf(packageFilter)>=0) {
 	    
 	    // String content = new String(Files.readAllBytes(Paths.get("duke.java")));
 	    System.out.println(">>> ref name file " + ref.name());

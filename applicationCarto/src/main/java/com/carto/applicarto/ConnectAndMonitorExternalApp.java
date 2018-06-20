@@ -19,24 +19,23 @@ import com.sun.jdi.connect.AttachingConnector;
 
 public class ConnectAndMonitorExternalApp {
 
-	public ConnectAndMonitorExternalApp(String classpathStr, String[] args, List<String> vmArgs) {
-		System.out.println("classpathStr = " + classpathStr);
-		System.out.println("args = " + args);
-		System.out.println("vmArgs = " + vmArgs.toString());
-		for (String arg : args) {
-			System.out.println(arg);
-		}
+	public ConnectAndMonitorExternalApp(String host, String port, String packageFilter) {
+//		System.out.println("classpathStr = " + classpathStr);
+//		System.out.println("args = " + args);
+//		System.out.println("vmArgs = " + vmArgs.toString());
+//		for (String arg : args) {
+//			System.out.println(arg);
+//		}
 		VirtualMachine vm = null;
 		try {
-			vm = connect(8080);
+			vm = connect(host, port);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		monitorJVM(vm);
+		monitorJVM(vm, packageFilter);
 	} // end of SimpleTrace()
 
-	private VirtualMachine connect(int port) throws IOException {
+	private VirtualMachine connect(String host, String port) throws IOException {
 		VirtualMachineManager manager = Bootstrap.virtualMachineManager();
 
 		// Find appropiate connector
@@ -59,8 +58,10 @@ public class ConnectAndMonitorExternalApp {
 		if (arg == null) {
 			throw new IllegalStateException("Could not find port argument");
 		}
-		arg.setValue("8001");
-
+		arg.setValue(port);
+		
+		((Connector.Argument) defaults.get("hostname")).setValue(host);
+		
 		// Attach
 		try {
 			System.out.println("Connector arguments: " + defaults);
@@ -117,11 +118,11 @@ public class ConnectAndMonitorExternalApp {
 		return connArgs;
 	} // end of setMainArgs()
 
-	private void monitorJVM(VirtualMachine vm)
+	private void monitorJVM(VirtualMachine vm, String packageFilter)
 	// monitor the JVM running the application
 	{
 		// start JDI event handler which displays trace info
-		JDIEventMonitor watcher = new JDIEventMonitor(vm);
+		JDIEventMonitor watcher = new JDIEventMonitor(vm, packageFilter);
 		watcher.start();
 
 		// vm.resume(); // start the application
@@ -139,22 +140,34 @@ public class ConnectAndMonitorExternalApp {
 	// ------------------------------------------------
 
 	public static void main(String[] args) {
+		// TODO : 
+		// arg[0] -> host (localhost)
+		// arg[1] -> port (8001)
+		// arg[2] -> package à filtrer (com.carto.applitemoin)
+		// arg[3] -> sources (c:\temp\sources\projet\temoin)
+		
 		if (args.length == 0)
 			System.err.println("Usage: runTrace <program>");
 		else {
-			String classpathStr = System.getProperty("java.class.path");
-			System.out.print("> classpath : " + classpathStr);
+			// String classpathStr = System.getProperty("java.class.path");
+			// System.out.print("> classpath : " + classpathStr);
 
 			for (String string : args) {
 				System.out.println(">> launch args : " + string);
 			}
-			RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-			List<String> arguments = runtimeMxBean.getInputArguments();
+			
+			// RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+			// List<String> arguments = runtimeMxBean.getInputArguments();
 
-			for (String arg : arguments) {
-				System.out.println(">> vm args : " + arg);
-			}
-			new ConnectAndMonitorExternalApp(classpathStr, args, arguments);
+			//for (String arg : arguments) {
+			//	System.out.println(">> vm args : " + arg);
+			//}
+			
+			String host = args[0];
+			String port = args[1];
+			String packageFilter = args[2];
+			
+			new ConnectAndMonitorExternalApp(host, port, packageFilter);
 		}
 	}
 
