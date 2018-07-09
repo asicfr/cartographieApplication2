@@ -33,6 +33,7 @@ public class ClientController {
     
     @RequestMapping("/client")
     public List<Client> getAll() {
+		System.getProperties().forEach((key, value) -> { System.out.println( "Key: " + key + " = " + value ); });
     	log.info(">>> get /client call");
     	List<Client> lesClients = clientDAO.findAll();
         return lesClients;

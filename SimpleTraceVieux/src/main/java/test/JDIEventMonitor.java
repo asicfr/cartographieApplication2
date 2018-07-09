@@ -1,9 +1,8 @@
-package com.carto.applicarto.utils;
+package test;
 
 import java.util.List;
 
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassNotPreparedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.LocalVariable;
@@ -49,30 +48,16 @@ public class JDIEventMonitor extends Thread
   private final String[] excludes = { "java.*", "javax.*", "sun.*", "com.sun.*"};
 
   private final VirtualMachine vm;   // the JVM
-  private final String packageFilter;	// the package
   private boolean connected = true;  // connected to VM?
   private boolean vmDied;            // has VM death occurred?
 
   private ShowCode showCode;
-  
-  private boolean methodEntry=false;
-  private boolean methodExit=false;
-  private boolean classPrepare=false;
-  private boolean classUnload=false;
-  private boolean threadStart=false;
-  private boolean threadDeath=false;
-  private boolean stepEvent=false;
-  private boolean modificationWatchpoint=false;
-  private boolean vmStart=false;
-  private boolean vmDeath=false;
-  private boolean vmDisconnect=false;
 
 
-  public JDIEventMonitor(VirtualMachine jvm, String newPackageFilter)
+  public JDIEventMonitor(VirtualMachine jvm)
   {
     super("JDIEventMonitor");
     vm = jvm;
-    packageFilter = newPackageFilter;
     showCode = new ShowCode();
 
     setEventRequests();
@@ -146,61 +131,37 @@ public class JDIEventMonitor extends Thread
   // process a JDI event
   {
     // method events
-	int toto = 1;
-    if (event instanceof MethodEntryEvent) {
-    	methodEntry=true;
-        methodEntryEvent((MethodEntryEvent) event);
-    }
-    else if (event instanceof MethodExitEvent) {
-    	methodExit=true;
-    	methodExitEvent((MethodExitEvent) event);
-    }
-
+    if (event instanceof MethodEntryEvent)
+      methodEntryEvent((MethodEntryEvent) event);
+    else if (event instanceof MethodExitEvent)
+      methodExitEvent((MethodExitEvent) event);
     // class events
-    else if (event instanceof ClassPrepareEvent) {
-    	classPrepare=true;
-    	classPrepareEvent((ClassPrepareEvent) event);
-    }
-    else if (event instanceof ClassUnloadEvent) {
-    	classUnload=true;
-    	classUnloadEvent((ClassUnloadEvent) event);
-    }
+    else if (event instanceof ClassPrepareEvent)
+      classPrepareEvent((ClassPrepareEvent) event);
+    else if (event instanceof ClassUnloadEvent)
+      classUnloadEvent((ClassUnloadEvent) event);
 
     // thread events
-    else if (event instanceof ThreadStartEvent) {
-    	threadStart=true;
-    	threadStartEvent((ThreadStartEvent) event);
-    }
-    else if (event instanceof ThreadDeathEvent) {
-    	threadDeath=true;
-    	threadDeathEvent((ThreadDeathEvent) event);
-    }
+    else if (event instanceof ThreadStartEvent)
+      threadStartEvent((ThreadStartEvent) event);
+    else if (event instanceof ThreadDeathEvent)
+      threadDeathEvent((ThreadDeathEvent) event);
 
     // step event -- a line of code is about to be executed
-    else if (event instanceof StepEvent) {
-    	stepEvent=true;
-    	stepEvent((StepEvent) event);
-    }
+    else if (event instanceof StepEvent)
+      stepEvent((StepEvent) event);
 
     // modified field event  -- a field is about to be changed
-    else if (event instanceof ModificationWatchpointEvent) {
-    	modificationWatchpoint=true;
-    	fieldWatchEvent((ModificationWatchpointEvent) event);
-    }
+    else if (event instanceof ModificationWatchpointEvent)
+      fieldWatchEvent((ModificationWatchpointEvent) event);
 
     // VM events
-    else if (event instanceof VMStartEvent) {
-    	vmStart=true;
-    	vmStartEvent((VMStartEvent) event);
-    }
-    else if (event instanceof VMDeathEvent) {
-    	vmDeath=true;
-    	vmDeathEvent((VMDeathEvent) event);
-    }
-    else if (event instanceof VMDisconnectEvent) {
-    	vmDisconnect=true;
-    	vmDisconnectEvent((VMDisconnectEvent) event);
-    }
+    else if (event instanceof VMStartEvent)
+      vmStartEvent((VMStartEvent) event);
+    else if (event instanceof VMDeathEvent)
+      vmDeathEvent((VMDeathEvent) event);
+    else if (event instanceof VMDisconnectEvent)
+      vmDisconnectEvent((VMDisconnectEvent) event);
 
     else
       throw new Error("Unexpected event type");
@@ -240,30 +201,10 @@ public class JDIEventMonitor extends Thread
   { 
     Method meth = event.method();
     String className = meth.declaringType().name();
-    try {
-		List<LocalVariable> args = meth.arguments();
-		for (LocalVariable a:args) {
-			String na = "nom: "+a.name();
-			try {
-				na += ", type: "+a.type();
-			} catch (ClassNotLoadedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("arg de "+meth.name()+": "+na);
-		}
-	} catch (AbsentInformationException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-    
-    // TODO 1 - afficher les données en entrées de la méthode
-    
-    if(className.indexOf(packageFilter)>=0) {
-        System.out.println(); // TODO 5 - supprimer ces sysout inutiles
-        System.out.println(); // TODO 5 - supprimer ces sysout inutiles
-        System.out.println(); // TODO 5 - supprimer ces sysout inutiles
-	    if (meth.isConstructor() && className.indexOf(packageFilter)>=0 )
+
+    System.out.println();
+    if(className.indexOf("carto")>=0) {
+	    if (meth.isConstructor() && className.indexOf("carto")>=0 )
 	      System.out.println("entered " + className + " constructor");
 	    else
 	      System.out.println("entered " + className +  "." + meth.name() +"()");
@@ -278,24 +219,12 @@ public class JDIEventMonitor extends Thread
     Method meth = event.method();
     String className = meth.declaringType().name();
 
-    if(className.indexOf(packageFilter)>=0) {
-//        System.out.println("methodEntry = "+methodEntry); // TODO 6 - menage
-//        System.out.println("methodExit = "+methodExit);
-//        System.out.println("classPrepare = "+classPrepare);
-//        System.out.println("classUnload = "+classUnload);
-//        System.out.println("threadStart = "+threadStart);
-//        System.out.println("threadDeath = "+threadDeath);
-//        System.out.println("stepEvent = "+stepEvent);
-//        System.out.println("modificationWatchpoint = "+modificationWatchpoint);
-//        System.out.println("vmStart = "+vmStart);
-//        System.out.println("vmDeath = "+vmDeath);
-//        System.out.println("vmDisconnect = "+vmDisconnect);
+    if(className.indexOf("carto")>=0)
 	    if (meth.isConstructor())
 	      System.out.println("exiting " + className + " constructor");
 	    else
 	      System.out.println("exiting " + className + "." + meth.name() + "()" );
-    }
-	    /*System.out.println();*/ // TODO 5 - menage
+	    System.out.println();
 
   }  // end of methodExitEvent()
 
@@ -308,7 +237,7 @@ public class JDIEventMonitor extends Thread
   {
     ReferenceType ref = event.referenceType();
     
-    if(ref.name().indexOf(packageFilter)>=0) {
+    if(ref.name().indexOf("carto")>=0) {
 	    
 	    // String content = new String(Files.readAllBytes(Paths.get("duke.java")));
 	    System.out.println(">>> ref name file " + ref.name());
@@ -319,8 +248,6 @@ public class JDIEventMonitor extends Thread
 	    String fnm;
 	    try {
 	      fnm = ref.sourceName();  // get filename of the class
-	      System.out.println("JDIEM fnm = "+fnm); // TODO 5 - menage
-	      System.out.println("JDIEM ref.name() = "+ref.name()); // TODO 5 - menage
 	      showCode.add(fnm, ref.name());
 	    }
 	    catch (AbsentInformationException e) 
@@ -328,14 +255,14 @@ public class JDIEventMonitor extends Thread
 	    	fnm = "??"; }
 	
 	    /*
-	    if(ref.name().indexOf("test.")>=0) { // TODO 5 - menage
-	    	System.out.println("loaded class: " + ref.name() + " from " + fnm + // TODO 5 - menage
-	        " - fields=" + fields.size() + ", methods=" + methods.size() ); // TODO 5 - menage
-	    } // TODO 5 - menage
+	    if(ref.name().indexOf("test.")>=0) {
+	    	System.out.println("loaded class: " + ref.name() + " from " + fnm +
+	        " - fields=" + fields.size() + ", methods=" + methods.size() );
+	    }
 	
-	    System.out.println("  method names: "); // TODO 5 - menage
-	    for(Method m : methods) // TODO 5 - menage
-	      System.out.println("    | " + m.name() +   "()" ); // TODO 5 - menage
+	    System.out.println("  method names: ");
+	    for(Method m : methods)
+	      System.out.println("    | " + m.name() +   "()" );
 		*/
 	    setFieldsWatch(fields);
     }  // end of classPrepareEvent()
@@ -376,7 +303,7 @@ public class JDIEventMonitor extends Thread
   {
      Field f = event.field();
      Value value = event.valueToBe();   // value that _will_ be assigned
-     System.out.println("    > " + f.name() + " = " + value); // TODO 1 - exemple qui marche ou on affiche les valeurs des variables
+     System.out.println("    > " + f.name() + " = " + value);
   }  // end of fieldWatchEvent()
 
 
@@ -443,28 +370,29 @@ public class JDIEventMonitor extends Thread
      If this is the first line in a method then also print 
      the local variables and the object's fields.
   */
-  { 
-	// TODO 4 - il n'y a pas de filtre sur le package lors du traitement des stepevent
-	  // recuperer depuis l'event la classe concernée et donc son package
-	  // si on n'a pas d'info sur cette classe **ABSENT_BASE_SOURCE_NAME** , alors on passe sans thrower d'exception
-	  
-	 Location loc = event.location();
+  { Location loc = event.location();
+  System.out.println(loc);
 
     try {   // print the line
       String fnm = loc.sourceName();  // get filename of code
+      System.out.println(loc);
+      String locstring = loc.toString();
+      System.out.println("locstring = "+locstring);
+      boolean vrai = locstring.contains("config");
+      System.out.println(vrai);
       String showOuput = showCode.show(fnm, loc.lineNumber());
-      if (showOuput != null) System.out.println(fnm + ": " + showOuput );
+      if (showOuput != null) {
+    	  System.out.println(fnm + ": " + showOuput );
+      }
     }
-    catch (AbsentInformationException e) {
-    	e.printStackTrace();
-    }
+    catch (AbsentInformationException e) {e.printStackTrace();}
 
     //if (loc.codeIndex() == 0)   // at the start of a method
       //printInitialState( event.thread() );
   }  // end of stepEvent()
 
 
-  private void printInitialState(ThreadReference thr) // TODO 1 - reactiver cette methode en se basant sur simpletrace d'origine
+  private void printInitialState(ThreadReference thr)
   /* called to print the locals this object's fields when a method
      is first called */
   {

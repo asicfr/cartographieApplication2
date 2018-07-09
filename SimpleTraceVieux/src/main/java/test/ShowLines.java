@@ -1,4 +1,4 @@
-package com.carto.applicarto.utils;
+package test;
 
 // ShowLines.java
 // Andrew Davison, March 2009, ad@fivedots.coe.psu.ac.th
@@ -16,8 +16,7 @@ import java.util.ArrayList;
 public class ShowLines
 {
 	// TODO a mettre en parametre d'entrée
-	//static private String rootPath = "C:/Users/kmorlock/Downloads/cartoJacoco-master/JavaAgentTest/src/main/java";
-	static private String rootPath = "C:/Users/kmorlock/Downloads/cartoJacoco-master/JavaAgentTest/src/main/java";
+	static private String rootPath = "C:/Users/kmorlock/Documents/GitHub/cartographieApplication2/applicationTemoinSimple/src/main/java";
 	private ArrayList<String> code;
   
   
@@ -35,10 +34,9 @@ public class ShowLines
     	// pour chaque jar / projet, il faudrait avoir un repertoire à partir duquel on pourrait trouver les sources
     	System.out.println(">>> chargement fichier fileName " + fileName);
     	
+    	
     	System.out.println("Avant fileName: " + rootPath + "/" + fpath.replace(".", "/"));
-//    	String path = rootPath + "/" + fpath.replace(".", "/") + ".java";
-    	String path = "C:/Users/kmorlock/Downloads/cartoJacoco-master/JavaAgentTest/src/main/java/test/TestMain.java";
-    	System.out.println("rootPath = "+rootPath);
+    	String path = rootPath + "/" + fpath.replace(".", "/") + ".java";
     	System.out.println(">>> chargement fichier path " + path);
       in = new BufferedReader(new FileReader(path));
       while ((line = in.readLine()) != null)
@@ -65,11 +63,7 @@ public class ShowLines
        return "No code to show for line " + lineNum;
 
     if ((lineNum < 1) || (lineNum > code.size()))
-      return "Line no. " + lineNum + " out of range"; 
-    // TODO 2 - on n'affiche pas le source de la ligne, on va se contenter d'afficher : 
-    // le package et la classe en court
-    // la méthode en court
-    // et le numéro de la ligne
+      return "Line no. " + lineNum + " out of range";
 
     return ( "" + lineNum + ".\t" + code.get(lineNum-1)); 
   }  // end of show()
