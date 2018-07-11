@@ -16,12 +16,10 @@ public class ShowCode
   // add fnm-ShowLines pair to map
   {
     if (listings.containsKey(fnm)) {
-      System.out.println(fnm + "already listed");
       return;
     }
 
     listings.put(fnm, new ShowLines(fnm, fpath));
-    System.out.println(fnm + " added to listings");
   }  // end of add()
 
   

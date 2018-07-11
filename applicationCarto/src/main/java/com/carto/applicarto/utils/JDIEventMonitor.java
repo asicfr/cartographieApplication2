@@ -1,6 +1,8 @@
 package com.carto.applicarto.utils;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
@@ -46,7 +48,11 @@ import com.sun.jdi.request.ThreadStartRequest;
 public class JDIEventMonitor extends Thread
 {
   // exclude events generated for these classes
-  private final String[] excludes = { "java.*", "javax.*", "sun.*", "com.sun.*"};
+  private final String[] excludes = { "java.*", "javax.*", "sun.*", "com.sun.*", 
+		  "jdk.internal.*",	
+		  // "com.mysql.*", 
+		  // "org.apache.tomcat.*"
+		  };
 
   private final VirtualMachine vm;   // the JVM
   private final String packageFilter;	// the package
@@ -89,13 +95,13 @@ public class JDIEventMonitor extends Thread
     MethodEntryRequest menr = mgr.createMethodEntryRequest(); // report method entries
     for (int i = 0; i < excludes.length; ++i)
       menr.addClassExclusionFilter(excludes[i]);
-    menr.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+    menr.setSuspendPolicy(EventRequest.SUSPEND_NONE); // TODO a voir
     menr.enable();
 	
     MethodExitRequest mexr = mgr.createMethodExitRequest();   // report method exits
-    for (int i = 0; i < excludes.length; ++i)
+    for (int i = 0; i < excludes.length; ++i) // TODO pourquoi faire plusieurs fois la boucle
       mexr.addClassExclusionFilter(excludes[i]);
-    mexr.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+    mexr.setSuspendPolicy(EventRequest.SUSPEND_NONE); // SUSPEND_EVENT_THREAD
     mexr.enable();
 
     ClassPrepareRequest cpr = mgr.createClassPrepareRequest(); // report class loads
@@ -109,7 +115,7 @@ public class JDIEventMonitor extends Thread
       cur.addClassExclusionFilter(excludes[i]);
     // cur.setSuspendPolicy(EventRequest.SUSPEND_ALL);
     cur.enable();
-
+    
     ThreadStartRequest tsr = mgr.createThreadStartRequest();  // report thread starts
     tsr.enable();
 
@@ -145,6 +151,7 @@ public class JDIEventMonitor extends Thread
   private void handleEvent(Event event)
   // process a JDI event
   {
+	  
     // method events
 	int toto = 1;
     if (event instanceof MethodEntryEvent) {
@@ -168,10 +175,12 @@ public class JDIEventMonitor extends Thread
 
     // thread events
     else if (event instanceof ThreadStartEvent) {
+    	System.out.println(">>> Event " + event.getClass().getName());
     	threadStart=true;
     	threadStartEvent((ThreadStartEvent) event);
     }
     else if (event instanceof ThreadDeathEvent) {
+    	System.out.println(">>> Event " + event.getClass().getName());
     	threadDeath=true;
     	threadDeathEvent((ThreadDeathEvent) event);
     }
@@ -240,30 +249,41 @@ public class JDIEventMonitor extends Thread
   { 
     Method meth = event.method();
     String className = meth.declaringType().name();
-    try {
-		List<LocalVariable> args = meth.arguments();
-		for (LocalVariable a:args) {
-			String na = "nom: "+a.name();
-			try {
-				na += ", type: "+a.type();
-			} catch (ClassNotLoadedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("arg de "+meth.name()+": "+na);
-		}
-	} catch (AbsentInformationException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-    
-    // TODO 1 - afficher les données en entrées de la méthode
     
     if(className.indexOf(packageFilter)>=0) {
-        System.out.println(); // TODO 5 - supprimer ces sysout inutiles
-        System.out.println(); // TODO 5 - supprimer ces sysout inutiles
-        System.out.println(); // TODO 5 - supprimer ces sysout inutiles
-	    if (meth.isConstructor() && className.indexOf(packageFilter)>=0 )
+	    
+//	    try {
+//	    	/*
+//	    	 * TODO
+//	    	 * entered com.carto.apptemoin.dao.impl.ClientDaoImpl$$EnhancerBySpringCGLIB$$81ab54df.findClientById()
+//				at jdk.jdi/com.sun.tools.jdi.ConcreteMethodImpl.getVariables1(ConcreteMethodImpl.java:495)
+//				at jdk.jdi/com.sun.tools.jdi.ConcreteMethodImpl.getVariables(ConcreteMethodImpl.java:540)
+//				at jdk.jdi/com.sun.tools.jdi.ConcreteMethodImpl.arguments(ConcreteMethodImpl.java:235)
+//				at com.carto.applicarto.utils.JDIEventMonitor.methodEntryEvent(JDIEventMonitor.java:249)
+//				at com.carto.applicarto.utils.JDIEventMonitor.handleEvent(JDIEventMonitor.java:154)
+//				at com.carto.applicarto.utils.JDIEventMonitor.run(JDIEventMonitor.java:133)
+//			com.sun.jdi.AbsentInformationException
+//	    	 * 
+//	    	 */
+//			List<LocalVariable> args = meth.arguments();
+//			for (LocalVariable a:args) {
+//				String na = "nom: "+a.name();
+//				try {
+//					na += ", type: "+a.type();
+//				} catch (ClassNotLoadedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				System.out.println("arg de "+meth.name()+": "+na);
+//			}
+//		} catch (AbsentInformationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	    
+	    // TODO 1 - afficher les données en entrées de la méthode
+	    
+        if (meth.isConstructor() && className.indexOf(packageFilter)>=0 )
 	      System.out.println("entered " + className + " constructor");
 	    else
 	      System.out.println("entered " + className +  "." + meth.name() +"()");
@@ -313,19 +333,17 @@ public class JDIEventMonitor extends Thread
 	    // String content = new String(Files.readAllBytes(Paths.get("duke.java")));
 	    System.out.println(">>> ref name file " + ref.name());
 	    
-	    List<Field> fields = ref.fields();
-	    List<Method> methods = ref.methods();
-	
-	    String fnm;
-	    try {
-	      fnm = ref.sourceName();  // get filename of the class
-	      System.out.println("JDIEM fnm = "+fnm); // TODO 5 - menage
-	      System.out.println("JDIEM ref.name() = "+ref.name()); // TODO 5 - menage
-	      showCode.add(fnm, ref.name());
-	    }
-	    catch (AbsentInformationException e) 
-	    {  e.printStackTrace();
-	    	fnm = "??"; }
+//	    List<Field> fields = ref.fields();
+//	    List<Method> methods = ref.methods();
+//	
+//	    String fnm;
+//	    try {
+//	      fnm = ref.sourceName();  // get filename of the class
+//	      showCode.add(fnm, ref.name());
+//	    }
+//	    catch (AbsentInformationException e) 
+//	    {  e.printStackTrace();
+//	    	fnm = "??"; }
 	
 	    /*
 	    if(ref.name().indexOf("test.")>=0) { // TODO 5 - menage
@@ -337,7 +355,14 @@ public class JDIEventMonitor extends Thread
 	    for(Method m : methods) // TODO 5 - menage
 	      System.out.println("    | " + m.name() +   "()" ); // TODO 5 - menage
 		*/
-	    setFieldsWatch(fields);
+	    
+	    
+	    
+	    // TODO : a quoi ca sert ? 
+	    // setFieldsWatch(fields);
+	    
+	    
+	    
     }  // end of classPrepareEvent()
   }
 
@@ -388,6 +413,7 @@ public class JDIEventMonitor extends Thread
   {
     ThreadReference thr = event.thread();
 
+    /*
     if (thr.name().equals("Signal Dispatcher") || 
         thr.name().equals("DestroyJavaVM") ||
         thr.name().startsWith("AWT-") )     // AWT threads
@@ -395,7 +421,7 @@ public class JDIEventMonitor extends Thread
     
     if (thr.threadGroup().name().equals("system"))   // ignore system threads
       return;
-
+	*/
     System.out.println(thr.name() + " thread started");
 
     setStepping(thr);
@@ -406,11 +432,12 @@ public class JDIEventMonitor extends Thread
   private void setStepping(ThreadReference thr)
   // start single stepping through the new thread
   {
+	  System.out.println("setStepping on " + thr.name());
     EventRequestManager mgr = vm.eventRequestManager();
 
     StepRequest sr = mgr.createStepRequest(thr, StepRequest.STEP_LINE,
                                                 StepRequest.STEP_INTO);
-    sr.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+    sr.setSuspendPolicy(EventRequest.SUSPEND_NONE); // SUSPEND_EVENT_THREAD
 
     for (int i = 0; i < excludes.length; ++i)
       sr.addClassExclusionFilter(excludes[i]);
@@ -422,21 +449,32 @@ public class JDIEventMonitor extends Thread
 
   private void threadDeathEvent(ThreadDeathEvent event)
   // the thread is about to terminate
-  {
-    ThreadReference thr = event.thread();
+  {ThreadReference thr = event.thread();
+	  /*
+    
     if (thr.name().equals("DestroyJavaVM") ||
         thr.name().startsWith("AWT-") ) 
       return;
 
     if (thr.threadGroup().name().equals("system"))   // ignore system threads
       return;
-
+	*/
     System.out.println(thr.name() + " thread about to die");
   }  // end of threadDeathEvent()
 
 
   // -------------------- step event handling  ---------------
-
+  private static final Pattern ENCLOSING_CLASS_REGEX = Pattern.compile("^([^\\$]*)");
+  public static String parseEnclosingType(String fullyQualifiedName) {
+          if (fullyQualifiedName == null) {
+              return null;
+          }
+          Matcher matcher = ENCLOSING_CLASS_REGEX.matcher(fullyQualifiedName);
+          if (matcher.find()) {
+              return matcher.group();
+          }
+          return null;
+      }
 
   private void stepEvent(StepEvent event)
   /* Print the line that's about to be executed.
@@ -449,15 +487,46 @@ public class JDIEventMonitor extends Thread
 	  // si on n'a pas d'info sur cette classe **ABSENT_BASE_SOURCE_NAME** , alors on passe sans thrower d'exception
 	  
 	 Location loc = event.location();
+	 final String fullyQualifiedName = loc.declaringType().name();
+	 
+	 System.out.println(">>>>>>> " + fullyQualifiedName + "  lineNumber : " + loc.lineNumber() );
+	 
+//	 String enclosingType = parseEnclosingType(fullyQualifiedName);
+//	 String fnm = enclosingType.substring(enclosingType.lastIndexOf('.') + 1) + ".java";
+//	 if(fnm.indexOf(packageFilter)>=0) {
+//		 
+//		 System.out.println(">>>>>>> " + fnm + "  lineNumber : " + loc.lineNumber() );
+//	 }
 
-    try {   // print the line
-      String fnm = loc.sourceName();  // get filename of code
-      String showOuput = showCode.show(fnm, loc.lineNumber());
-      if (showOuput != null) System.out.println(fnm + ": " + showOuput );
-    }
-    catch (AbsentInformationException e) {
-    	e.printStackTrace();
-    }
+
+	 
+	 
+//    try {   // print the line
+//      String fnm = loc.sourceName();  // get filename of code
+//      
+//      
+//      // String showOuput = showCode.show(fnm, loc.lineNumber());
+//      // if (showOuput != null) System.out.println(fnm + " à la ligne " + loc.lineNumber() + ": " + showOuput );
+//    }
+//    catch (AbsentInformationException e) {
+//    	String enclosingType = parseEnclosingType(fullyQualifiedName);
+//    	String fnm = enclosingType.substring(enclosingType.lastIndexOf('.') + 1) + ".java";
+//    	// String showOuput = showCode.show(fnm, loc.lineNumber());
+//        // if (showOuput != null) { 
+//        //	System.out.println(fnm + ": " + showOuput );
+//        // } else {
+//        // 	System.out.println(fnm + " à la ligne " + loc.lineNumber() );
+//        // }
+//        
+//        
+//        // relativeSourcePath = enclosingType.replace('.', File.separatorChar) + ".java";
+//    }
+//
+//    
+//    	// returns -1 if the information is not available
+//      // System.out.println(">>>>>>>  lineNumber : " + loc.lineNumber() );
+
+    
 
     //if (loc.codeIndex() == 0)   // at the start of a method
       //printInitialState( event.thread() );
