@@ -1,5 +1,6 @@
 package com.carto.applicarto.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,18 +61,6 @@ public class JDIEventMonitor extends Thread
   private boolean vmDied;            // has VM death occurred?
 
   private ShowCode showCode;
-  
-  private boolean methodEntry=false;
-  private boolean methodExit=false;
-  private boolean classPrepare=false;
-  private boolean classUnload=false;
-  private boolean threadStart=false;
-  private boolean threadDeath=false;
-  private boolean stepEvent=false;
-  private boolean modificationWatchpoint=false;
-  private boolean vmStart=false;
-  private boolean vmDeath=false;
-  private boolean vmDisconnect=false;
 
 
   public JDIEventMonitor(VirtualMachine jvm, String newPackageFilter)
@@ -155,59 +144,48 @@ public class JDIEventMonitor extends Thread
     // method events
 	int toto = 1;
     if (event instanceof MethodEntryEvent) {
-    	methodEntry=true;
         methodEntryEvent((MethodEntryEvent) event);
     }
     else if (event instanceof MethodExitEvent) {
-    	methodExit=true;
     	methodExitEvent((MethodExitEvent) event);
     }
 
     // class events
     else if (event instanceof ClassPrepareEvent) {
-    	classPrepare=true;
     	classPrepareEvent((ClassPrepareEvent) event);
     }
     else if (event instanceof ClassUnloadEvent) {
-    	classUnload=true;
     	classUnloadEvent((ClassUnloadEvent) event);
     }
 
     // thread events
     else if (event instanceof ThreadStartEvent) {
     	System.out.println(">>> Event " + event.getClass().getName());
-    	threadStart=true;
     	threadStartEvent((ThreadStartEvent) event);
     }
     else if (event instanceof ThreadDeathEvent) {
     	System.out.println(">>> Event " + event.getClass().getName());
-    	threadDeath=true;
     	threadDeathEvent((ThreadDeathEvent) event);
     }
 
     // step event -- a line of code is about to be executed
     else if (event instanceof StepEvent) {
-    	stepEvent=true;
     	stepEvent((StepEvent) event);
     }
 
     // modified field event  -- a field is about to be changed
     else if (event instanceof ModificationWatchpointEvent) {
-    	modificationWatchpoint=true;
     	fieldWatchEvent((ModificationWatchpointEvent) event);
     }
 
     // VM events
     else if (event instanceof VMStartEvent) {
-    	vmStart=true;
     	vmStartEvent((VMStartEvent) event);
     }
     else if (event instanceof VMDeathEvent) {
-    	vmDeath=true;
     	vmDeathEvent((VMDeathEvent) event);
     }
     else if (event instanceof VMDisconnectEvent) {
-    	vmDisconnect=true;
     	vmDisconnectEvent((VMDisconnectEvent) event);
     }
 
@@ -299,23 +277,11 @@ public class JDIEventMonitor extends Thread
     String className = meth.declaringType().name();
 
     if(className.indexOf(packageFilter)>=0) {
-//        System.out.println("methodEntry = "+methodEntry); // TODO 6 - menage
-//        System.out.println("methodExit = "+methodExit);
-//        System.out.println("classPrepare = "+classPrepare);
-//        System.out.println("classUnload = "+classUnload);
-//        System.out.println("threadStart = "+threadStart);
-//        System.out.println("threadDeath = "+threadDeath);
-//        System.out.println("stepEvent = "+stepEvent);
-//        System.out.println("modificationWatchpoint = "+modificationWatchpoint);
-//        System.out.println("vmStart = "+vmStart);
-//        System.out.println("vmDeath = "+vmDeath);
-//        System.out.println("vmDisconnect = "+vmDisconnect);
 	    if (meth.isConstructor())
 	      System.out.println("exiting " + className + " constructor");
 	    else
 	      System.out.println("exiting " + className + "." + meth.name() + "()" );
     }
-	    /*System.out.println();*/ // TODO 5 - menage
 
   }  // end of methodExitEvent()
 
@@ -344,17 +310,6 @@ public class JDIEventMonitor extends Thread
 //	    catch (AbsentInformationException e) 
 //	    {  e.printStackTrace();
 //	    	fnm = "??"; }
-	
-	    /*
-	    if(ref.name().indexOf("test.")>=0) { // TODO 5 - menage
-	    	System.out.println("loaded class: " + ref.name() + " from " + fnm + // TODO 5 - menage
-	        " - fields=" + fields.size() + ", methods=" + methods.size() ); // TODO 5 - menage
-	    } // TODO 5 - menage
-	
-	    System.out.println("  method names: "); // TODO 5 - menage
-	    for(Method m : methods) // TODO 5 - menage
-	      System.out.println("    | " + m.name() +   "()" ); // TODO 5 - menage
-		*/
 	    
 	    
 	    
@@ -486,8 +441,27 @@ public class JDIEventMonitor extends Thread
 	  // recuperer depuis l'event la classe concernée et donc son package
 	  // si on n'a pas d'info sur cette classe **ABSENT_BASE_SOURCE_NAME** , alors on passe sans thrower d'exception
 	  
+	  List<LocalVariable> liste = new ArrayList<LocalVariable>();
+	  
+	  try {
+		liste = event.location().method().variables();
+	} catch (AbsentInformationException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	  
+	  for(LocalVariable l:liste) {
+		  System.out.println(l.name());
+	  }
+	  
 	 Location loc = event.location();
-	 final String fullyQualifiedName = loc.declaringType().name();
+	 String fullyQualifiedName = "Classe inconnue";	//Valeur par défaut quand le nom de la classe ne peut être récupéré
+	try {
+		fullyQualifiedName = loc.sourceName();
+	} catch (AbsentInformationException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
 	 
 	 System.out.println(">>>>>>> " + fullyQualifiedName + "  lineNumber : " + loc.lineNumber() );
 	 
