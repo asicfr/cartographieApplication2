@@ -1,6 +1,7 @@
 
 Pour que ca fonctionne : 
-- il faut ajouter tools.jar dans le classpath du projet (proprietes du projet > java build path > librairies > selectionner jdk > ajouter external > dans le jdl trouver tools.jar)
+- il faut ajouter tools.jar dans le classpath du projet (proprietes du projet > java build path > 
+	librairies > selectionner jdk > ajouter external > dans le jdl trouver tools.jar)
 - il faut le projet JavaAgentCartoTest à coté, il a été ajouté dans les entries du classpath pour lancer SimpleTrace (voir SimpleTrace.launch)
 
 

@@ -16,6 +16,11 @@
 	</properties>
 	
 	<dependencies>
+		<dependency>
+			<groupId>com.microsoft.java</groupId>
+		    <artifactId>com.microsoft.java.debug.core</artifactId>
+	        <version>0.10.0</version>
+		</dependency>
 	</dependencies>
 	
 <build>
