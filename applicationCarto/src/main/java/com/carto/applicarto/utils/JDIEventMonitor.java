@@ -262,9 +262,9 @@ public class JDIEventMonitor extends Thread
 	    // TODO 1 - afficher les données en entrées de la méthode
 	    
         if (meth.isConstructor() && className.indexOf(packageFilter)>=0 )
-	      System.out.println("entered " + className + " constructor");
+	      System.out.println("\nentered " + className + " constructor");
 	    else
-	      System.out.println("entered " + className +  "." + meth.name() +"()");
+	      System.out.println("\nentered " + className +  "." + meth.name() +"()");
 	  }  // end of methodEntryEvent()
   }
 
@@ -278,9 +278,9 @@ public class JDIEventMonitor extends Thread
 
     if(className.indexOf(packageFilter)>=0) {
 	    if (meth.isConstructor())
-	      System.out.println("exiting " + className + " constructor");
+	      System.out.println("exiting " + className + " constructor\n");
 	    else
-	      System.out.println("exiting " + className + "." + meth.name() + "()" );
+	      System.out.println("exiting " + className + "." + meth.name() + "()\n" );
     }
 
   }  // end of methodExitEvent()
@@ -451,7 +451,16 @@ public class JDIEventMonitor extends Thread
 	}
 	  
 	  for(LocalVariable l:liste) {
-		  System.out.println(l.name());
+		  String signature = l.signature();
+		  signature = signature.replace(";", "");
+		  
+		  if(signature != null && !signature.isEmpty()) {
+			  while(signature.indexOf("/")>=0) {
+				  signature = signature.substring(signature.indexOf("/")+1);
+			  }
+		  }
+		  
+		  System.out.println(signature + " " + l.name());
 	  }
 	  
 	 Location loc = event.location();
