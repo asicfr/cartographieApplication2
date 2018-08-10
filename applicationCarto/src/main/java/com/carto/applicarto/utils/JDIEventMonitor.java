@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.microsoft.java.debug.core.adapter.variables.VariableUtils;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassNotPreparedException;
 import com.sun.jdi.Field;
+import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Location;
 import com.sun.jdi.Method;
@@ -44,7 +46,18 @@ import com.sun.jdi.request.StepRequest;
 import com.sun.jdi.request.ThreadDeathRequest;
 import com.sun.jdi.request.ThreadStartRequest;
 
-
+/*
+ * TODO : 
+ * - cleaner le code
+ * - ajouter un petit message : "carto ready" une fois que les setStepping sont ok
+ * - rattacher le flux d'execution à un thead id
+ * - +indentation sur les enters / -indentation sur les exits
+ * - centraliser les startsWith + contains("<generated>")
+ * - afficher les variables
+ * - mettre en place un vrai logger
+ * - afficher les données en entrées de la méthode : event.location().method().arguments()
+ * 
+ */
 
 public class JDIEventMonitor extends Thread
 {
@@ -70,12 +83,12 @@ public class JDIEventMonitor extends Thread
     packageFilter = newPackageFilter;
     showCode = new ShowCode();
 
-    setEventRequests();
+    setEventRequests(vm.allThreads());
   }  // end of JDIEventMonitor()
 
 
 
-  private void setEventRequests()
+  private void setEventRequests(List<ThreadReference> threads)
   /* Create and enable the event requests for the events
      we want to monitor in the running program. */
   {
@@ -110,7 +123,9 @@ public class JDIEventMonitor extends Thread
 
     ThreadDeathRequest tdr = mgr.createThreadDeathRequest();  // report thread deaths
     tdr.enable();
-
+    
+    
+    threads.forEach(thread -> setStepping(thread));
   }  // end of setEventRequests()
 
 
@@ -228,7 +243,11 @@ public class JDIEventMonitor extends Thread
     Method meth = event.method();
     String className = meth.declaringType().name();
     
-    if(className.indexOf(packageFilter)>=0) {
+    if(className.indexOf(packageFilter)>=0 
+    		&& className.contains("<generated>") == false
+			&& className.contains("$$FastClassBySpringCGLIB$$") == false
+			&& className.contains("$$EnhancerBySpringCGLIB$$") == false) {
+    	// entered com.carto.apptemoin.dao.impl.ClientDaoImpl$$EnhancerBySpringCGLIB$$79989aac.findClientById()
 	    
 //	    try {
 //	    	/*
@@ -258,10 +277,9 @@ public class JDIEventMonitor extends Thread
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-	    
-	    // TODO 1 - afficher les données en entrées de la méthode
-	    
-        if (meth.isConstructor() && className.indexOf(packageFilter)>=0 )
+
+    	
+        if (meth.isConstructor())
 	      System.out.println("\nentered " + className + " constructor");
 	    else
 	      System.out.println("\nentered " + className +  "." + meth.name() +"()");
@@ -276,7 +294,10 @@ public class JDIEventMonitor extends Thread
     Method meth = event.method();
     String className = meth.declaringType().name();
 
-    if(className.indexOf(packageFilter)>=0) {
+    if(className.indexOf(packageFilter)>=0
+    		&& className.contains("<generated>") == false
+    		&& className.contains("$$FastClassBySpringCGLIB$$") == false
+			&& className.contains("$$EnhancerBySpringCGLIB$$") == false) {
 	    if (meth.isConstructor())
 	      System.out.println("exiting " + className + " constructor\n");
 	    else
@@ -322,24 +343,6 @@ public class JDIEventMonitor extends Thread
   }
 
 
-
-  private void setFieldsWatch(List<Field> fields)
-  // Set modification watchpoints on each of the loaded class's fields
-  {
-    EventRequestManager mgr = vm.eventRequestManager();
-
-    for (Field field : fields) {
-      ModificationWatchpointRequest req = 
-                mgr.createModificationWatchpointRequest(field);
-      for (int i = 0; i < excludes.length; i++)
-        req.addClassExclusionFilter(excludes[i]);
-      req.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-      req.enable();
-    }
-  }  // end of setFieldsWatch()
-
-
-
   private void classUnloadEvent(ClassUnloadEvent event)
   // a class has been unloaded  
   { 
@@ -367,6 +370,9 @@ public class JDIEventMonitor extends Thread
   // a new thread has started running -- switch on single stepping
   {
     ThreadReference thr = event.thread();
+    
+	  //TODO on tente de récupérer les valeurs des variables
+//	  printInitialState(thr);
 
     /*
     if (thr.name().equals("Signal Dispatcher") || 
@@ -387,7 +393,7 @@ public class JDIEventMonitor extends Thread
   private void setStepping(ThreadReference thr)
   // start single stepping through the new thread
   {
-	  System.out.println("setStepping on " + thr.name());
+	  try {
     EventRequestManager mgr = vm.eventRequestManager();
 
     StepRequest sr = mgr.createStepRequest(thr, StepRequest.STEP_LINE,
@@ -397,6 +403,9 @@ public class JDIEventMonitor extends Thread
     for (int i = 0; i < excludes.length; ++i)
       sr.addClassExclusionFilter(excludes[i]);
     sr.enable();
+	  } catch (com.sun.jdi.InternalException ex) {
+		  //System.err.println("exception on setStepping on " + thr.name());
+	  }
   }  // end of setStepping()
 
 
@@ -441,38 +450,57 @@ public class JDIEventMonitor extends Thread
 	  // recuperer depuis l'event la classe concernée et donc son package
 	  // si on n'a pas d'info sur cette classe **ABSENT_BASE_SOURCE_NAME** , alors on passe sans thrower d'exception
 	  
-	  List<LocalVariable> liste = new ArrayList<LocalVariable>();
-	  
-	  try {
-		liste = event.location().method().variables();
-	} catch (AbsentInformationException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	  
-	  for(LocalVariable l:liste) {
-		  String signature = l.signature();
-		  signature = signature.replace(";", "");
-		  
-		  if(signature != null && !signature.isEmpty()) {
-			  while(signature.indexOf("/")>=0) {
-				  signature = signature.substring(signature.indexOf("/")+1);
-			  }
-		  }
-		  
-		  System.out.println(signature + " " + l.name());
-	  }
+//	  //TODO on tente de récupérer les valeurs des variables
+//	  ThreadReference thr = event.thread();
+//	  StackFrame sf = null;
+//	  try {
+//		sf = thr.frame(0);
+//	} catch (IncompatibleThreadStateException e2) {
+//		// TODO Auto-generated catch block
+//		e2.printStackTrace();
+//	}
 	  
 	 Location loc = event.location();
 	 String fullyQualifiedName = "Classe inconnue";	//Valeur par défaut quand le nom de la classe ne peut être récupéré
 	try {
-		fullyQualifiedName = loc.sourceName();
+		fullyQualifiedName = loc.sourcePath().replace("\\", ".").replace(".java", "");
 	} catch (AbsentInformationException e1) {
 		// TODO Auto-generated catch block
-		e1.printStackTrace();
+		//e1.printStackTrace();
 	}
 	 
-	 System.out.println(">>>>>>> " + fullyQualifiedName + "  lineNumber : " + loc.lineNumber() );
+	if (fullyQualifiedName.startsWith(packageFilter) 
+			&& fullyQualifiedName.contains("<generated>") == false
+			&& fullyQualifiedName.contains("$$FastClassBySpringCGLIB$$") == false
+			&& fullyQualifiedName.contains("$$EnhancerBySpringCGLIB$$") == false) {
+		// <generated>  lineNumber : -1
+		// exiting com.carto.apptemoin.dao.impl.ClientDaoImpl$$FastClassBySpringCGLIB$$e82ed8b6.invoke()
+		System.out.println("work on " + fullyQualifiedName + " at lineNumber : " + loc.lineNumber() );
+		
+		
+		// TODO a externaliser dans une méthode dédiée
+		try {
+			List<LocalVariable> liste = event.location().method().variables();
+			for(LocalVariable l:liste) {
+				String signature = l.signature();
+				signature = signature.replace(";", "");
+				
+				if(signature != null && !signature.isEmpty()) {
+					while(signature.indexOf("/")>=0) {
+						signature = signature.substring(signature.indexOf("/")+1);
+					}
+				}
+				
+				System.out.println(" variable : " + l.name() + " of type " + l.typeName());
+				
+				// TODO pour avoir la valeur, il faudra utiliser java-debug et stackFrame.getValue(localVariable)
+			}
+		} catch (AbsentInformationException e) {
+		}
+
+		  
+		
+	}
 	 
 //	 String enclosingType = parseEnclosingType(fullyQualifiedName);
 //	 String fnm = enclosingType.substring(enclosingType.lastIndexOf('.') + 1) + ".java";
@@ -521,16 +549,19 @@ public class JDIEventMonitor extends Thread
      is first called */
   {
     // get top-most current stack frame
+	  thr.suspend();
     StackFrame currFrame = null;
     try {
-      currFrame = thr.frame(0); 
+      currFrame = thr.frame(0);
     }
     catch (Exception e) {
       e.printStackTrace();
+      thr.resume();
       return;
     }
 
     printLocals(currFrame);
+    thr.resume();
 
     // print fields info for the 'this' object
     ObjectReference objRef = currFrame.thisObject();   // get 'this' object

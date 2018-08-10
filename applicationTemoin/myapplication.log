@@ -1292,3 +1292,50 @@
 2018-08-01 17:03:54.731  INFO 15904 --- [http-nio-8080-exec-2] java.lang.Class                          : >>> get /client/{id} call
 2018-08-01 17:04:46.531  INFO 15904 --- [http-nio-8080-exec-3] java.lang.Class                          : >>> get /client/{id} call
 2018-08-01 17:07:58.532  INFO 15904 --- [http-nio-8080-exec-5] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 09:48:20.735  INFO 16516 --- [main] com.carto.apptemoin.config.Application   : Starting Application on LFR022384 with PID 16516 (C:\Users\kmorlock\Documents\GitHub\cartographieApplication2\applicationTemoin\target\classes started by kmorlock in C:\Users\kmorlock\Documents\GitHub\cartographieApplication2\applicationTemoin)
+2018-08-10 09:48:20.735  INFO 16516 --- [main] com.carto.apptemoin.config.Application   : No active profile set, falling back to default profiles: default
+2018-08-10 09:48:20.829  INFO 16516 --- [main] ationConfigEmbeddedWebApplicationContext : Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@740d2e78: startup date [Fri Aug 10 09:48:20 CEST 2018]; root of context hierarchy
+2018-08-10 09:48:23.339  INFO 16516 --- [main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat initialized with port(s): 8080 (http)
+2018-08-10 09:48:23.355  INFO 16516 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2018-08-10 09:48:23.355  INFO 16516 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet Engine: Apache Tomcat/8.5.23
+2018-08-10 09:48:23.488  INFO 16516 --- [localhost-startStop-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2018-08-10 09:48:23.488  INFO 16516 --- [localhost-startStop-1] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2659 ms
+2018-08-10 09:48:23.769  INFO 16516 --- [localhost-startStop-1] o.s.b.w.servlet.ServletRegistrationBean  : Mapping servlet: 'dispatcherServlet' to [/]
+2018-08-10 09:48:23.769  INFO 16516 --- [localhost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-08-10 09:48:23.769  INFO 16516 --- [localhost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-08-10 09:48:23.769  INFO 16516 --- [localhost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-08-10 09:48:23.769  INFO 16516 --- [localhost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'requestContextFilter' to: [/*]
+2018-08-10 09:48:25.715  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : Looking for @ControllerAdvice: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@740d2e78: startup date [Fri Aug 10 09:48:20 CEST 2018]; root of context hierarchy
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/client]}" onto public java.util.List<com.carto.apptemoin.model.Client> com.carto.apptemoin.service.ClientController.getAll()
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/client],methods=[DELETE]}" onto public void com.carto.apptemoin.service.ClientController.deleteClient(int)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/client],methods=[POST]}" onto public int com.carto.apptemoin.service.ClientController.createClient(com.carto.apptemoin.model.Client)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/client],methods=[PUT]}" onto public void com.carto.apptemoin.service.ClientController.updateClient(com.carto.apptemoin.model.Client)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/client/{id}]}" onto public com.carto.apptemoin.model.Client com.carto.apptemoin.service.ClientController.getClientById(int)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/commande]}" onto public java.util.List<com.carto.apptemoin.model.Commande> com.carto.apptemoin.service.CommandeController.commande()
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/commande],methods=[PUT]}" onto public void com.carto.apptemoin.service.CommandeController.updateCommande(com.carto.apptemoin.model.Commande)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/commande/{clientId}/{produitId}/{numero}],methods=[DELETE]}" onto public void com.carto.apptemoin.service.CommandeController.deleteCommande(int,java.lang.String,int)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/commande],methods=[POST]}" onto public com.carto.apptemoin.model.Commande com.carto.apptemoin.service.CommandeController.createCommande(com.carto.apptemoin.model.Commande)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/commande/{clientId}/{produitId}/{numero}]}" onto public com.carto.apptemoin.model.Commande com.carto.apptemoin.service.CommandeController.getCommandeById(int,java.lang.String,int)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/produit],methods=[PUT]}" onto public void com.carto.apptemoin.service.ProduitController.updateProduit(com.carto.apptemoin.model.Produit)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/produit/{id}],methods=[DELETE]}" onto public void com.carto.apptemoin.service.ProduitController.deleteProduit(java.lang.String)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/produit]}" onto public java.util.List<com.carto.apptemoin.model.Produit> com.carto.apptemoin.service.ProduitController.produit()
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/produit/{id}]}" onto public com.carto.apptemoin.model.Produit com.carto.apptemoin.service.ProduitController.getProduitById(java.lang.String)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/produit],methods=[POST]}" onto public java.lang.String com.carto.apptemoin.service.ProduitController.createProduit(com.carto.apptemoin.model.Produit)
+2018-08-10 09:48:25.887  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2018-08-10 09:48:25.902  INFO 16516 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-08-10 09:48:25.949  INFO 16516 --- [main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-08-10 09:48:25.949  INFO 16516 --- [main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-08-10 09:48:26.012  INFO 16516 --- [main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-08-10 09:48:26.419  INFO 16516 --- [main] o.s.j.e.a.AnnotationMBeanExporter        : Registering beans for JMX exposure on startup
+2018-08-10 09:48:26.544  INFO 16516 --- [main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 8080 (http)
+2018-08-10 09:48:26.544  INFO 16516 --- [main] com.carto.apptemoin.config.Application   : Started Application in 6.312 seconds (JVM running for 7.7)
+2018-08-10 09:52:51.133  INFO 16516 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-08-10 09:52:51.278  INFO 16516 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization started
+2018-08-10 09:52:53.002  INFO 16516 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization completed in 1609 ms
+2018-08-10 09:52:53.081  INFO 16516 --- [http-nio-8080-exec-1] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 10:01:38.477  INFO 16516 --- [http-nio-8080-exec-3] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 10:08:52.805  INFO 16516 --- [http-nio-8080-exec-5] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 10:38:14.616  INFO 16516 --- [http-nio-8080-exec-7] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 10:46:21.481  INFO 16516 --- [http-nio-8080-exec-9] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 10:53:33.766  INFO 16516 --- [http-nio-8080-exec-1] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 11:03:56.953  INFO 16516 --- [http-nio-8080-exec-3] java.lang.Class                          : >>> get /client/{id} call
