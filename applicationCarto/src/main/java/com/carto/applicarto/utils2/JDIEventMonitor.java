@@ -118,22 +118,6 @@ public class JDIEventMonitor {
 		if (ref.name().indexOf(packageFilter) >= 0) {
 
 			System.out.println(">>> ref name file " + ref.name());
-
-			// List<Field> fields = ref.fields();
-			// List<Method> methods = ref.methods();
-			//
-			// String fnm;
-			// try {
-			// fnm = ref.sourceName(); // get filename of the class
-			// showCode.add(fnm, ref.name());
-			// }
-			// catch (AbsentInformationException e)
-			// { e.printStackTrace();
-			// fnm = "??"; }
-
-			// TODO : a quoi ca sert ?
-			// setFieldsWatch(fields);
-
 		} // end of classPrepareEvent()
 	}
 
@@ -142,14 +126,6 @@ public class JDIEventMonitor {
 	{
 		ThreadReference thr = event.thread();
 
-		/*
-		 * if (thr.name().equals("Signal Dispatcher") ||
-		 * thr.name().equals("DestroyJavaVM") || thr.name().startsWith("AWT-") ) // AWT
-		 * threads return;
-		 * 
-		 * if (thr.threadGroup().name().equals("system")) // ignore system threads
-		 * return;
-		 */
 		System.out.println(thr.name() + " thread started");
 
 		setStepping(thr);
@@ -176,14 +152,6 @@ public class JDIEventMonitor {
 	// the thread is about to terminate
 	{
 		ThreadReference thr = event.thread();
-		/*
-		 * 
-		 * if (thr.name().equals("DestroyJavaVM") || thr.name().startsWith("AWT-") )
-		 * return;
-		 * 
-		 * if (thr.threadGroup().name().equals("system")) // ignore system threads
-		 * return;
-		 */
 		System.out.println(thr.name() + " thread about to die");
 	} // end of threadDeathEvent()
 
@@ -202,10 +170,6 @@ public class JDIEventMonitor {
 	}
 
 	private void stepEvent(StepEvent event)
-	/*
-	 * Print the line that's about to be executed. If this is the first line in a
-	 * method then also print the local variables and the object's fields.
-	 */
 	{
 		// TODO 4 - il n'y a pas de filtre sur le package lors du traitement des
 		// stepevent
@@ -246,45 +210,6 @@ public class JDIEventMonitor {
 		}
 
 		System.out.println(">>>>>>> " + fullyQualifiedName + "  lineNumber : " + loc.lineNumber());
-
-		// String enclosingType = parseEnclosingType(fullyQualifiedName);
-		// String fnm = enclosingType.substring(enclosingType.lastIndexOf('.') + 1) +
-		// ".java";
-		// if(fnm.indexOf(packageFilter)>=0) {
-		//
-		// System.out.println(">>>>>>> " + fnm + " lineNumber : " + loc.lineNumber() );
-		// }
-
-		// try { // print the line
-		// String fnm = loc.sourceName(); // get filename of code
-		//
-		//
-		// // String showOuput = showCode.show(fnm, loc.lineNumber());
-		// // if (showOuput != null) System.out.println(fnm + " à la ligne " +
-		// loc.lineNumber() + ": " + showOuput );
-		// }
-		// catch (AbsentInformationException e) {
-		// String enclosingType = parseEnclosingType(fullyQualifiedName);
-		// String fnm = enclosingType.substring(enclosingType.lastIndexOf('.') + 1) +
-		// ".java";
-		// // String showOuput = showCode.show(fnm, loc.lineNumber());
-		// // if (showOuput != null) {
-		// // System.out.println(fnm + ": " + showOuput );
-		// // } else {
-		// // System.out.println(fnm + " à la ligne " + loc.lineNumber() );
-		// // }
-		//
-		//
-		// // relativeSourcePath = enclosingType.replace('.', File.separatorChar) +
-		// ".java";
-		// }
-		//
-		//
-		// // returns -1 if the information is not available
-		// // System.out.println(">>>>>>> lineNumber : " + loc.lineNumber() );
-
-		// if (loc.codeIndex() == 0) // at the start of a method
-		// printInitialState( event.thread() );
 	} // end of stepEvent()
 
 	private void printInitialState(ThreadReference thr) // TODO 1 - reactiver cette methode en se basant sur simpletrace
