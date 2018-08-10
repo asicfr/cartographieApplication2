@@ -1339,3 +1339,4 @@
 2018-08-10 10:46:21.481  INFO 16516 --- [http-nio-8080-exec-9] java.lang.Class                          : >>> get /client/{id} call
 2018-08-10 10:53:33.766  INFO 16516 --- [http-nio-8080-exec-1] java.lang.Class                          : >>> get /client/{id} call
 2018-08-10 11:03:56.953  INFO 16516 --- [http-nio-8080-exec-3] java.lang.Class                          : >>> get /client/{id} call
+2018-08-10 11:26:49.043  INFO 16516 --- [http-nio-8080-exec-5] java.lang.Class                          : >>> get /client/{id} call

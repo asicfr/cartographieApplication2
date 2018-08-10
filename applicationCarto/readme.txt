@@ -6,26 +6,33 @@ Pour que ca fonctionne :
 
 
 RAF : 
-- avoir accès aux sources du code
-- faire un accès à une JVM remote
-	http://kingsfleet.blogspot.fr/2013/10/write-auto-debugger-to-catch-exceptions.html
-		vmm = com.sun.jdi.Bootstrap.virtualMachineManager();
-		vmm.attachingConnectors().each{ if("dt_socket".equalsIgnoreCase(it.transport().name())) { atconn = it; } }
-		prm = atconn.defaultArguments();
-		prm.get("port").setValue(7896prm.getprm.get("hostname").setValue("127.0.0.1.attach(prm);
+TODO : 
+- reporter les modifications qu'on a fait sur com.carto.applicarto.utils.JDIEventMonitor
+			vers com.carto.applicarto.utils2.JDIEventMonitor (utilise java-debug)
+		il faut qu'on ait le meme comportement entre ces deux classes
+- on commit sur notre branche git
+- cleaner le code com.carto.applicarto.utils2.JDIEventMonitor
+		- supprimer commentaire code
+		- supprimer les commentaires inutiles
+		- on supprimer les méthodes inutiles ...
+		- on reformatte le code (ctrl+shift+f)
+		- on supprime les classe du package com.carto.applicarto.utils
+		il faut qu'on ait le meme comportement qu'avant
+- on commit sur notre branche git
+
+- on va implementer quelques fonctionnalités - commiter à chaque fonctionnalité terminée :
+	- afficher les variables dans stepEvent en utilisant java-debug et stackFrame.getValue(localVariable)
+	- ajouter un petit message : "carto ready" une fois que les setStepping sont ok
+	- rattacher le flux d'execution à un thead id -- à voir ensemble
+	- +indentation sur les enters / -indentation sur les exits
+	- centraliser les startsWith + contains("<generated>")
+	- mettre en place un vrai logger (log4j / slf4j ...)
+	- afficher les données en entrées de la méthode : event.location().method().arguments()
+	- stocker le résultat du flux d'exécution
 
 
-https://fivedots.coe.psu.ac.th/~ad/jg/javaArt3/
-https://fivedots.coe.psu.ac.th/~ad/jg/javaArt3/SimpleTrace.zip
-https://fivedots.coe.psu.ac.th/~ad/jg/javaArt3/traceJPDA.pdf
 
-Similaire : http://cs.fit.edu/~ryan/java/programs/jdi/trace/
 
-Autres : 
-https://stackify.com/java-remote-debugging/
-http://bridgei2i.com/blog/an-introduction-to-the-java-debugger/
-https://github.com/gmu-swe/phosphor
-http://www.jonbell.net/2016/11/debugging-java-bytecode-instrumentation/
 
 ================================================================================================================
 

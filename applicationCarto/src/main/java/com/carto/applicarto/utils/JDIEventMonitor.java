@@ -46,19 +46,6 @@ import com.sun.jdi.request.StepRequest;
 import com.sun.jdi.request.ThreadDeathRequest;
 import com.sun.jdi.request.ThreadStartRequest;
 
-/*
- * TODO : 
- * - cleaner le code
- * - ajouter un petit message : "carto ready" une fois que les setStepping sont ok
- * - rattacher le flux d'execution à un thead id
- * - +indentation sur les enters / -indentation sur les exits
- * - centraliser les startsWith + contains("<generated>")
- * - afficher les variables
- * - mettre en place un vrai logger
- * - afficher les données en entrées de la méthode : event.location().method().arguments()
- * 
- */
-
 public class JDIEventMonitor extends Thread
 {
   // exclude events generated for these classes
@@ -187,11 +174,11 @@ public class JDIEventMonitor extends Thread
     else if (event instanceof StepEvent) {
     	stepEvent((StepEvent) event);
     }
-
-    // modified field event  -- a field is about to be changed
-    else if (event instanceof ModificationWatchpointEvent) {
-    	fieldWatchEvent((ModificationWatchpointEvent) event);
-    }
+//
+//    // modified field event  -- a field is about to be changed
+//    else if (event instanceof ModificationWatchpointEvent) {
+//    	fieldWatchEvent((ModificationWatchpointEvent) event);
+//    }
 
     // VM events
     else if (event instanceof VMStartEvent) {
@@ -355,12 +342,12 @@ public class JDIEventMonitor extends Thread
   // ---------------------- modified field event handling ----------------------------------
 
 
-  private void fieldWatchEvent(ModificationWatchpointEvent event)
-  {
-     Field f = event.field();
-     Value value = event.valueToBe();   // value that _will_ be assigned
-     System.out.println("    > " + f.name() + " = " + value); // TODO 1 - exemple qui marche ou on affiche les valeurs des variables
-  }  // end of fieldWatchEvent()
+//  private void fieldWatchEvent(ModificationWatchpointEvent event)
+//  {
+//     Field f = event.field();
+//     Value value = event.valueToBe();   // value that _will_ be assigned
+//     System.out.println("    > " + f.name() + " = " + value); // TODO 1 - exemple qui marche ou on affiche les valeurs des variables
+//  }  // end of fieldWatchEvent()
 
 
 
@@ -371,7 +358,7 @@ public class JDIEventMonitor extends Thread
   {
     ThreadReference thr = event.thread();
     
-	  //TODO on tente de récupérer les valeurs des variables
+	  
 //	  printInitialState(thr);
 
     /*
