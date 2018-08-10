@@ -32,13 +32,7 @@ public class JDIEventMonitor {
 	private String packageFilter;
 	// exclude events generated for these classes
 	private final String[] excludes = { "java.*", "javax.*", "sun.*", "com.sun.*", "jdk.internal.*",
-			// "com.mysql.*",
-			// "org.apache.tomcat.*"
 	};
-	
-	// >>> Event com.sun.tools.jdi.EventSetImpl$ThreadStartEventImpl
-	// Tomcat JDBC Pool Cleaner[997608398:1533134536445] thread started
-	// setStepping on Tomcat JDBC Pool Cleaner[997608398:1533134536445]
 	
 	private VirtualMachine vm;
 	
@@ -123,7 +117,6 @@ public class JDIEventMonitor {
 
 		if (ref.name().indexOf(packageFilter) >= 0) {
 
-			// String content = new String(Files.readAllBytes(Paths.get("duke.java")));
 			System.out.println(">>> ref name file " + ref.name());
 
 			// List<Field> fields = ref.fields();
