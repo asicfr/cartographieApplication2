@@ -51,8 +51,6 @@ public class JDIEventMonitor extends Thread
   // exclude events generated for these classes
   private final String[] excludes = { "java.*", "javax.*", "sun.*", "com.sun.*", 
 		  "jdk.internal.*",	
-		  // "com.mysql.*", 
-		  // "org.apache.tomcat.*"
 		  };
 
   private final VirtualMachine vm;   // the JVM
@@ -235,37 +233,7 @@ public class JDIEventMonitor extends Thread
 			&& className.contains("$$FastClassBySpringCGLIB$$") == false
 			&& className.contains("$$EnhancerBySpringCGLIB$$") == false) {
     	// entered com.carto.apptemoin.dao.impl.ClientDaoImpl$$EnhancerBySpringCGLIB$$79989aac.findClientById()
-	    
-//	    try {
-//	    	/*
-//	    	 * TODO
-//	    	 * entered com.carto.apptemoin.dao.impl.ClientDaoImpl$$EnhancerBySpringCGLIB$$81ab54df.findClientById()
-//				at jdk.jdi/com.sun.tools.jdi.ConcreteMethodImpl.getVariables1(ConcreteMethodImpl.java:495)
-//				at jdk.jdi/com.sun.tools.jdi.ConcreteMethodImpl.getVariables(ConcreteMethodImpl.java:540)
-//				at jdk.jdi/com.sun.tools.jdi.ConcreteMethodImpl.arguments(ConcreteMethodImpl.java:235)
-//				at com.carto.applicarto.utils.JDIEventMonitor.methodEntryEvent(JDIEventMonitor.java:249)
-//				at com.carto.applicarto.utils.JDIEventMonitor.handleEvent(JDIEventMonitor.java:154)
-//				at com.carto.applicarto.utils.JDIEventMonitor.run(JDIEventMonitor.java:133)
-//			com.sun.jdi.AbsentInformationException
-//	    	 * 
-//	    	 */
-//			List<LocalVariable> args = meth.arguments();
-//			for (LocalVariable a:args) {
-//				String na = "nom: "+a.name();
-//				try {
-//					na += ", type: "+a.type();
-//				} catch (ClassNotLoadedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				System.out.println("arg de "+meth.name()+": "+na);
-//			}
-//		} catch (AbsentInformationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 
-    	
         if (meth.isConstructor())
 	      System.out.println("\nentered " + className + " constructor");
 	    else
@@ -306,26 +274,6 @@ public class JDIEventMonitor extends Thread
 	    
 	    // String content = new String(Files.readAllBytes(Paths.get("duke.java")));
 	    System.out.println(">>> ref name file " + ref.name());
-	    
-//	    List<Field> fields = ref.fields();
-//	    List<Method> methods = ref.methods();
-//	
-//	    String fnm;
-//	    try {
-//	      fnm = ref.sourceName();  // get filename of the class
-//	      showCode.add(fnm, ref.name());
-//	    }
-//	    catch (AbsentInformationException e) 
-//	    {  e.printStackTrace();
-//	    	fnm = "??"; }
-	    
-	    
-	    
-	    // TODO : a quoi ca sert ? 
-	    // setFieldsWatch(fields);
-	    
-	    
-	    
     }  // end of classPrepareEvent()
   }
 
@@ -359,17 +307,6 @@ public class JDIEventMonitor extends Thread
     ThreadReference thr = event.thread();
     
 	  
-//	  printInitialState(thr);
-
-    /*
-    if (thr.name().equals("Signal Dispatcher") || 
-        thr.name().equals("DestroyJavaVM") ||
-        thr.name().startsWith("AWT-") )     // AWT threads
-      return;
-    
-    if (thr.threadGroup().name().equals("system"))   // ignore system threads
-      return;
-	*/
     System.out.println(thr.name() + " thread started");
 
     setStepping(thr);
@@ -391,7 +328,7 @@ public class JDIEventMonitor extends Thread
       sr.addClassExclusionFilter(excludes[i]);
     sr.enable();
 	  } catch (com.sun.jdi.InternalException ex) {
-		  //System.err.println("exception on setStepping on " + thr.name());
+		  System.err.println("exception on setStepping on " + thr.name());
 	  }
   }  // end of setStepping()
 
@@ -401,15 +338,6 @@ public class JDIEventMonitor extends Thread
   private void threadDeathEvent(ThreadDeathEvent event)
   // the thread is about to terminate
   {ThreadReference thr = event.thread();
-	  /*
-    
-    if (thr.name().equals("DestroyJavaVM") ||
-        thr.name().startsWith("AWT-") ) 
-      return;
-
-    if (thr.threadGroup().name().equals("system"))   // ignore system threads
-      return;
-	*/
     System.out.println(thr.name() + " thread about to die");
   }  // end of threadDeathEvent()
 
